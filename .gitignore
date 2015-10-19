@@ -12,6 +12,7 @@
 
 # Build results
 [Dd]ebug/
+[Dd]ebug/*.dmp
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
