@@ -1,12 +1,8 @@
 // HWP_VirtualMachine.cpp : Defines the entry point for the console application.
 //
-
 #include "stdafx.h"
-#include <iostream>
 #include "Instruction.h"
 #include "Program.h"
-
-#define SETBITS(data, mask, shiftl) data = (word)(dt | (mask << shiftl));
 
 void Print(Instruction* ins)
 {
@@ -25,21 +21,11 @@ void Print(Instruction* ins)
 
 int main()
 {
-	/*word dt = 0;
-	SETBITS(dt, 1, 0);
-	SETBITS(dt, 2, 4);
-	SETBITS(dt, 3, 8);
-	SETBITS(dt, 0, 12);
-	SETBITS(dt, 1, 13);
-	Instruction *ins = (Instruction*)&dt;
-	Print(ins);
-	
-	dt = 0;
-	SETBITS(dt, 2, 0);
-	SETBITS(dt, 4095, 4);
-	Print(ins);*/
+	char path[512];
+	GetCurrentDirectoryA(512, path);
+	strcat_s(path, "\\testprog1.bin");
 
-	Program prog = Program("C:\\Users\\M\\Documents\\Visual Studio 2015\\Projects\\HWP_VirtualMachine\\Debug\\testprog1.bin");
+	Program prog = Program(path);
 	
 	Instruction *i = prog.FetchNextInstruction();
 	if (i == nullptr)

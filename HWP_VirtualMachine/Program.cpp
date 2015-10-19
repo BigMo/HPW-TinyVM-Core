@@ -8,8 +8,15 @@ Program::Program(char * fileName) : m_InstructionPointer(0), m_bMemoryAllocated(
 	file.seekg(0, std::ios::end);
 	std::streamsize size = file.tellg();
 	file.seekg(0, std::ios::beg);
+
+	if (size == -1)
+	{
+		this->m_bExited = true;
+		return;
+	}
+
 	this->m_pProgram = new byte[size];
-	this->m_iProgramLength = size;
+	this->m_iProgramLength = (dword)size;
 	if (!file.read((char*)m_pProgram, size))
 		this->m_bExited = true;
 }
