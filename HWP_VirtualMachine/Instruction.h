@@ -2,21 +2,22 @@
 #include "stdafx.h"
 
 //OpCodes
-#define NOP		0000
-#define LOAD	0001
-#define ADD		0010
-#define SUB		0011
-#define MUL		0100
-#define MOV		0101
-#define DIV		0110
-#define PUSH	0111
-#define POP		1000
-#define JMP		1001
-#define JIZ		1010
-#define JIH		1011
-#define JSR		1100
-#define RTS		1101
-#define DMP		1110
+#define NOP		0
+#define LOAD	1
+#define ADD		2
+#define SUB		3
+#define MUL		4
+#define MOV		5
+#define DIV		6
+#define PUSH	7
+#define POP		8
+#define JMP		9
+#define JIZ		10
+#define JIH		11
+#define JSR		12
+#define RTS		13
+#define DMP		14
+#define BREAK	15
 
 //Struct defining the structure of value.
 struct RegisterParameter
@@ -40,6 +41,62 @@ union Instruction
 	RegisterParameter RegisterParameter;
 	ValueParameter ValueParameter;
 };
+
+static void OpCodeToString(word opCode, char* lpcstr)
+{
+	memset(lpcstr, 0, 5);
+	switch (opCode)
+	{
+	case NOP:
+		memcpy(lpcstr, "NOP", 3);
+		break;
+	case LOAD:
+		memcpy(lpcstr, "LOAD", 4);
+		break;
+	case ADD:
+		memcpy(lpcstr, "ADD", 3);
+		break;
+	case SUB:
+		memcpy(lpcstr, "SUB", 3);
+		break;
+	case MUL:
+		memcpy(lpcstr, "MUL", 3);
+		break;
+	case MOV:
+		memcpy(lpcstr, "MOV", 3);
+		break;
+	case DIV:
+		memcpy(lpcstr, "DIV", 3);
+		break;
+	case PUSH:
+		memcpy(lpcstr, "PUSH", 4);
+		break;
+	case POP:
+		memcpy(lpcstr, "POP", 3);
+		break;
+	case JMP:
+		memcpy(lpcstr, "JMP", 3);
+		break;
+	case JIZ:
+		memcpy(lpcstr, "JIZ", 3);
+		break;
+	case JIH:
+		memcpy(lpcstr, "JIH", 3);
+		break;
+	case JSR:
+		memcpy(lpcstr, "JSR", 3);
+		break;
+	case RTS:
+		memcpy(lpcstr, "RTS", 3);
+		break;
+	case DMP:
+		memcpy(lpcstr, "DMP", 3);
+		break;
+	case BREAK:
+		memcpy(lpcstr, "BREAK", 5);
+		break;
+	}
+}
 
 //Struct defining the structure of an instruction
 //struct Instruction

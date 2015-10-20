@@ -24,6 +24,9 @@ public:
 	void ExecuteInstruction(Instruction* pIns);
 	bool HasExited();
 	void Exec_Dmp();
+	dword GetFetchedInstructions();
+	dword GetExecutedInstructions();
+	void PrintState();
 private:
 	/* Variables */
 	byte* m_pProgram;
@@ -35,8 +38,11 @@ private:
 	bool m_bExited;
 	bool m_bMemoryAllocated;
 	dword m_iProgramLength;
+	dword m_iFetchedInstructions;
+	dword m_iExecutedInstructions;
 
 	/* Methods */
+	void PrintStack();
 	void JumpTo(dword iPos);
 	template<class T>
 	T GetTFromMem(dword index)

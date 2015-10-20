@@ -145,6 +145,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Config.h" />
     <ClInclude Include="Instruction.h" />
     <ClInclude Include="Program.h" />
     <ClInclude Include="Stack.h" />

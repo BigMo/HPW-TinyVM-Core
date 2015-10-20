@@ -3,11 +3,16 @@
 #include "stdafx.h"
 #include "Instruction.h"
 #include "Program.h"
+#include "Config.h"
+#pragma comment( lib, "shlwapi.lib")
 
 void Print(Instruction* ins)
 {
+	char opCode[5];
+	OpCodeToString(ins->RegisterParameter.OpCode, opCode);
+	std::cout << "OpCode: " << opCode << " (" << ins->RegisterParameter.OpCode << ")"<< std::endl;
+
 	std::cout << "RegisterParameter:" << std::endl;
-	std::cout << "\tOpCode: " << ins->RegisterParameter.OpCode << std::endl;
 	std::cout << "\tRX: " << ins->RegisterParameter.RX << std::endl;
 	std::cout << "\tRY: " << ins->RegisterParameter.RY << std::endl;
 	std::cout << "\tToMem: " << ins->RegisterParameter.ToMem << std::endl;
@@ -15,32 +20,37 @@ void Print(Instruction* ins)
 	std::cout << "\tUnused: " << ins->RegisterParameter.Unused << std::endl;
 	
 	std::cout << "ValueParameter:" << std::endl;
-	std::cout << "\tOpCode: " << ins->ValueParameter.OpCode << std::endl;
 	std::cout << "\tValue: " << ins->ValueParameter.Value << std::endl;
 }
 
-int main()
+int main(int argc, char** argv)
 {
-	char path[512];
-	GetCurrentDirectoryA(512, path);
-	strcat_s(path, "\\testprog1.bin");
+	Config::ProcessArgs(argc, argv);
+	if (!Config::FileExists)
+	{
+		std::cout << "> Input-file was not specified or found!" << std::endl;
+		system("pause");
+		return 0;
+	}
+	std::cout << "> Executing file:" <<std::endl << "\"" << Config::FilePath << "\"" << std::endl;
 
-	Program prog = Program(path);
+	Program prog = Program(Config::FilePath);
 	
-	Instruction *i = prog.FetchNextInstruction();
-	if (i == nullptr)
+	Instruction *i = nullptr;
+	while ((i = prog.FetchNextInstruction()) != nullptr && !prog.HasExited())
 	{
-		std::cout << "Could not fetch instruction!" << std::endl;
-	}
-	else 
-	{
-		do
+		//if (Config::PrintInstructions)
+		//	Print(i);
+		prog.ExecuteInstruction(i);
+		/*if (Config::SingleStep)
 		{
-			Print(i);
-			i = prog.FetchNextInstruction();
-		} while (i != nullptr && !prog.HasExited());
-		prog.Exec_Dmp();
+			prog.PrintState();
+		}*/
 	}
+	prog.Exec_Dmp();
+	std::cout << "> Reached end of program:" << std::endl;
+	std::cout << "\tInstructions fetched: " << prog.GetFetchedInstructions() << std::endl;
+	std::cout << "\tInstructions executed: " << prog.GetExecutedInstructions() << std::endl;
 	system("pause");
     return 0;
 }

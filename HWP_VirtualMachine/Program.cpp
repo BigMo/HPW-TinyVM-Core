@@ -45,6 +45,7 @@ Instruction * Program::FetchNextInstruction()
 		Instruction *ret = (Instruction*)(this->m_pProgram + this->m_InstructionPointer);
 		//Advance counter
 		this->m_InstructionPointer += sizeof(Instruction);
+		this->m_iFetchedInstructions++;
 		return ret;
 	}
 	else
@@ -118,7 +119,15 @@ void Program::ExecuteInstruction(Instruction * pIns)
 	case DMP:
 		this->Exec_Dmp();
 		break;
+	case BREAK:
+		this->PrintState();
+
+		break;
+	default:
+		std::cout << "> Unknown OpCode \"" << pIns->ValueParameter.OpCode << "\"" << std::endl;
+		break;
 	}
+	this->m_iExecutedInstructions++;
 }
 
 void Program::Exec_Mov(RegisterParameter param)
@@ -204,6 +213,10 @@ void Program::Exec_Pop(RegisterParameter param)
 
 void WriteToFile(char* fileName, char* buffer, int bufferLength)
 {
+	char path[512];
+	GetCurrentDirectoryA(512, path);
+	strcat_s(path, "\\");
+	strcat_s(path, fileName);
 	std::ofstream file(fileName, std::ios::binary);
 	file.write(buffer, bufferLength);
 	file.close();
@@ -212,8 +225,8 @@ void WriteToFile(char* fileName, char* buffer, int bufferLength)
 template <class T>
 void WriteRegisterToFile(char* regName, Stack<T> *reg)
 {
-	char regFileName[512];
-	sprintf_s(regFileName, "C:\\Users\\M\\Documents\\Visual Studio 2015\\Projects\\HWP_VirtualMachine\\Debug\\%s.dmp", regName);
+	char regFileName[32];
+	sprintf_s(regFileName, "%s.dmp", regName);
 	T *regBuffer = reg->Dump();
 	if (regBuffer != nullptr)
 		WriteToFile(regFileName, (char*)regBuffer, reg->GetFrameCount() * sizeof(T));
@@ -224,7 +237,7 @@ void WriteRegisterToFile(char* regName, Stack<T> *reg)
 void Program::Exec_Dmp()
 {
 	//Dump memory
-	WriteToFile("C:\\Users\\M\\Documents\\Visual Studio 2015\\Projects\\HWP_VirtualMachine\\Debug\\memory.dmp", (char*)(this->m_pMemory), MEMORY_SIZE);
+	WriteToFile("memory.dmp", (char*)(this->m_pMemory), MEMORY_SIZE);
 	//Dump GP registers
 	for (int i = 0; i < NUM_REGISTERS; i++)
 	{
@@ -234,4 +247,62 @@ void Program::Exec_Dmp()
 	}
 	//Dump instruction-pointer-register
 	WriteRegisterToFile<dword>("callstack", &(this->m_InstructionPointers));
+}
+
+dword Program::GetFetchedInstructions()
+{
+	return this->m_iFetchedInstructions;
+}
+
+dword Program::GetExecutedInstructions()
+{
+	return this->m_iExecutedInstructions;
+}
+
+//Prints the state of the program
+void Program::PrintState()
+{
+	std::cout << "--------------------------------------------------------" << std::endl;
+	//Fetched/executed instructions, IP
+	std::cout << " State: " << this->m_iFetchedInstructions << "F " << this->m_iExecutedInstructions << "E, @0x" << std::setw(4) << std::setfill('0') << std::hex << this->m_InstructionPointer << std::endl;
+	//Registers
+	std::cout.width(0);
+	for (int i = 0; i < NUM_REGISTERS; i++) {
+		std::cout << std::setw(4) << std::setfill(' ') << std::dec << i;
+		if (i < NUM_REGISTERS - 1)
+			std::cout << "|";
+	}
+	std::cout << std::endl;
+	for (int i = 0; i < NUM_REGISTERS; i++) {
+		std::cout << std::setw(4) << std::setfill(' ') << std::hex << this->m_pRegisters[i];
+		if (i < NUM_REGISTERS - 1)
+			std::cout << "|";
+	}
+	std::cout << std::endl;
+	//Callstack
+	std::cout << "Callstack: ";
+	PrintStack();
+
+	//std::string input;
+	//std::cout << "(Press enter to continue execution)" << std::endl;
+	//std::cin >> input;
+	system("pause");
+	std::cout << "--------------------------------------------------------" << std::endl;
+}
+
+void Program::PrintStack()
+{
+	Stack<dword> tmpStack = Stack<dword>();
+
+	while (this->m_InstructionPointers.GetFrameCount() > 0)
+		tmpStack.Push(this->m_InstructionPointers.Pop());
+
+	while (tmpStack.GetFrameCount() > 0)
+	{
+		dword ptr = tmpStack.Pop();
+		this->m_InstructionPointers.Push(ptr);
+		std::cout << std::setw(2) << std::setfill(' ') << std::hex << ptr << "->";
+	}
+
+	std::cout << std::setw(2) << std::setfill(' ') << std::hex << this->m_InstructionPointer << std::dec << std::endl;
 }

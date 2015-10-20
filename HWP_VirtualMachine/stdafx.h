@@ -12,6 +12,11 @@
 
 #include <windows.h>
 #include <iostream>
+#include <iomanip>
+#include <string>
+#include <stdio.h>
+#include <string.h>
+#include "Shlwapi.h"
 
 
 // TODO: reference additional headers your program requires here
