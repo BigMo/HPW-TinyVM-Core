@@ -26,12 +26,16 @@ public:
 	void Exec_Dmp();
 	dword GetFetchedInstructions();
 	dword GetExecutedInstructions();
+	dword GetInstructionPointer();
+	dword GetLastInstructionPointer();
+	Instruction *GetCurrentInstruction();
 	void PrintState();
 private:
 	/* Variables */
 	byte* m_pProgram;
 	byte m_pMemory[MEMORY_SIZE];
 	dword m_InstructionPointer;
+	dword m_LastInstructionPointer;
 	Stack<REG_TYPE> m_pRegisterStacks[NUM_REGISTERS];
 	Stack<dword> m_InstructionPointers;
 	REG_TYPE m_pRegisters[NUM_REGISTERS];
@@ -40,6 +44,7 @@ private:
 	dword m_iProgramLength;
 	dword m_iFetchedInstructions;
 	dword m_iExecutedInstructions;
+	Instruction *m_pCurrentInstruction;
 
 	/* Methods */
 	void PrintStack();

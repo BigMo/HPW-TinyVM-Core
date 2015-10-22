@@ -146,7 +146,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Config.h" />
+    <ClInclude Include="DynArray.h" />
     <ClInclude Include="Instruction.h" />
+    <ClInclude Include="IOManager.h" />
+    <ClInclude Include="LogInstruction.h" />
+    <ClInclude Include="Profiler.h" />
     <ClInclude Include="Program.h" />
     <ClInclude Include="Stack.h" />
     <ClInclude Include="stdafx.h" />
@@ -154,6 +158,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HWP_VirtualMachine.cpp" />
+    <ClCompile Include="IOManager.cpp" />
+    <ClCompile Include="Profiler.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

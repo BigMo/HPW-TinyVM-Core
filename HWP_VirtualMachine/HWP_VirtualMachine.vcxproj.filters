@@ -16,6 +16,18 @@
     <Filter Include="Header Files\Internals">
       <UniqueIdentifier>{021a0ad3-efb1-4533-b383-4edc7800e4a0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Profiler">
+      <UniqueIdentifier>{49fcffc4-64e7-4114-bbe7-ca0bc132188b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Profiler">
+      <UniqueIdentifier>{c39fbeb6-3949-460e-836b-febbae69ca74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IO">
+      <UniqueIdentifier>{a41f9620-fecd-4749-8cd9-5bcab2e001ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IO">
+      <UniqueIdentifier>{144dd61b-aa88-4f7a-bd35-5a19b3056fa9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -39,6 +51,18 @@
     <ClInclude Include="Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Profiler.h">
+      <Filter>Header Files\Profiler</Filter>
+    </ClInclude>
+    <ClInclude Include="DynArray.h">
+      <Filter>Header Files\Profiler</Filter>
+    </ClInclude>
+    <ClInclude Include="LogInstruction.h">
+      <Filter>Header Files\Profiler</Filter>
+    </ClInclude>
+    <ClInclude Include="IOManager.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -49,6 +73,12 @@
     </ClCompile>
     <ClCompile Include="Program.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Profiler.cpp">
+      <Filter>Source Files\Profiler</Filter>
+    </ClCompile>
+    <ClCompile Include="IOManager.cpp">
+      <Filter>Source Files\IO</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

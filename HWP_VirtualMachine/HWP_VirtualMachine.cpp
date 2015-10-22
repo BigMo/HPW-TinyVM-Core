@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #include "Instruction.h"
 #include "Program.h"
+#include "Profiler.h"
 #include "Config.h"
 #pragma comment( lib, "shlwapi.lib")
 
@@ -23,8 +24,10 @@ void Print(Instruction* ins)
 	std::cout << "\tValue: " << ins->ValueParameter.Value << std::endl;
 }
 
+
 int main(int argc, char** argv)
-{
+{	
+	SetConsoleTitleA("HWP - VirtualMachine [core]");
 	Config::ProcessArgs(argc, argv);
 	if (!Config::FileExists)
 	{
@@ -33,24 +36,48 @@ int main(int argc, char** argv)
 		return 0;
 	}
 	std::cout << "> Executing file:" <<std::endl << "\"" << Config::FilePath << "\"" << std::endl;
-
 	Program prog = Program(Config::FilePath);
-	
+	Profiler prof = Profiler(!Config::ProfilingSeparate, &prog);
+
 	Instruction *i = nullptr;
+	auto start = std::chrono::high_resolution_clock::now();
 	while ((i = prog.FetchNextInstruction()) != nullptr && !prog.HasExited())
 	{
-		//if (Config::PrintInstructions)
-		//	Print(i);
+		if (Config::PrintInstructions)
+			Print(i);
+
+		if(Config::ProfilingEnabled)
+			prof.Start();
+
 		prog.ExecuteInstruction(i);
-		/*if (Config::SingleStep)
+
+		if (Config::ProfilingEnabled)
+		{
+			prof.Stop();
+			prof.SaveDelta();
+		}
+
+		if (Config::SingleStep)
 		{
 			prog.PrintState();
-		}*/
+		}
 	}
-	prog.Exec_Dmp();
+	auto finish = std::chrono::high_resolution_clock::now();
+	double duration = (double)(std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count()) / 1000000000.0;
 	std::cout << "> Reached end of program:" << std::endl;
 	std::cout << "\tInstructions fetched: " << prog.GetFetchedInstructions() << std::endl;
 	std::cout << "\tInstructions executed: " << prog.GetExecutedInstructions() << std::endl;
+	std::cout << "\tDuration: " << std::setprecision(8) << duration << "s" << std::endl;
+	std::cout << "Performing full dump..." << std::endl;
+	prog.Exec_Dmp();
+
+	if (Config::ProfilingEnabled)
+	{
+		std::cout << "Saving profile..." << std::endl;
+		prof.SaveToFile("Profile.txt");
+	}
+
+	std::cout << "Done." << std::endl;
 	system("pause");
     return 0;
 }

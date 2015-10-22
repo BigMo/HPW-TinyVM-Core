@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "Program.h"
-#include <fstream>
+#include "IOManager.h"
 
-Program::Program(char * fileName) : m_InstructionPointer(0), m_bMemoryAllocated(true)
+Program::Program(char * fileName) : m_InstructionPointer(0), m_bMemoryAllocated(true), m_bExited(false), m_iExecutedInstructions(0), m_iFetchedInstructions(0), m_pCurrentInstruction(nullptr)
 {
 	std::ifstream file(fileName, std::ios::binary);
 	file.seekg(0, std::ios::end);
@@ -21,7 +21,7 @@ Program::Program(char * fileName) : m_InstructionPointer(0), m_bMemoryAllocated(
 		this->m_bExited = true;
 }
 
-Program::Program(byte* pProgramBuffer, int iLength) : m_pProgram(pProgramBuffer), m_iProgramLength(iLength), m_InstructionPointer(0), m_bMemoryAllocated(false)
+Program::Program(byte* pProgramBuffer, int iLength) : m_pProgram(pProgramBuffer), m_iProgramLength(iLength), m_InstructionPointer(0), m_bMemoryAllocated(false), m_bExited(false), m_iExecutedInstructions(0), m_iFetchedInstructions(0), m_pCurrentInstruction(nullptr)
 {
 	for (int i = 0; i < NUM_REGISTERS; i++)
 	{
@@ -42,17 +42,18 @@ Instruction * Program::FetchNextInstruction()
 	if (this->m_InstructionPointer <= this->m_iProgramLength - sizeof(Instruction))
 	{
 		//Convert instruction from bytes
-		Instruction *ret = (Instruction*)(this->m_pProgram + this->m_InstructionPointer);
+		this->m_pCurrentInstruction = (Instruction*)(this->m_pProgram + this->m_InstructionPointer);
 		//Advance counter
+		this->m_LastInstructionPointer = this->m_InstructionPointer;
 		this->m_InstructionPointer += sizeof(Instruction);
 		this->m_iFetchedInstructions++;
-		return ret;
 	}
 	else
 	{
 		this->m_bExited = true;
-		return nullptr;
+		this->m_pCurrentInstruction = nullptr;
 	}
+	return this->m_pCurrentInstruction;
 }
 
 bool Program::HasExited()
@@ -211,17 +212,6 @@ void Program::Exec_Pop(RegisterParameter param)
 	REG(param.RX) = STACK(param.RX).Pop();
 }
 
-void WriteToFile(char* fileName, char* buffer, int bufferLength)
-{
-	char path[512];
-	GetCurrentDirectoryA(512, path);
-	strcat_s(path, "\\");
-	strcat_s(path, fileName);
-	std::ofstream file(fileName, std::ios::binary);
-	file.write(buffer, bufferLength);
-	file.close();
-}
-
 template <class T>
 void WriteRegisterToFile(char* regName, Stack<T> *reg)
 {
@@ -229,15 +219,15 @@ void WriteRegisterToFile(char* regName, Stack<T> *reg)
 	sprintf_s(regFileName, "%s.dmp", regName);
 	T *regBuffer = reg->Dump();
 	if (regBuffer != nullptr)
-		WriteToFile(regFileName, (char*)regBuffer, reg->GetFrameCount() * sizeof(T));
+		GIOManager.WriteToLocalFile(regFileName, (char*)regBuffer, reg->GetFrameCount() * sizeof(T));
 	else
-		WriteToFile(regFileName, "empty", 5);
+		GIOManager.WriteToLocalFile(regFileName, "empty", 5);
 }
 
 void Program::Exec_Dmp()
 {
 	//Dump memory
-	WriteToFile("memory.dmp", (char*)(this->m_pMemory), MEMORY_SIZE);
+	GIOManager.WriteToLocalFile("memory.dmp", (char*)(this->m_pMemory), MEMORY_SIZE);
 	//Dump GP registers
 	for (int i = 0; i < NUM_REGISTERS; i++)
 	{
@@ -257,6 +247,21 @@ dword Program::GetFetchedInstructions()
 dword Program::GetExecutedInstructions()
 {
 	return this->m_iExecutedInstructions;
+}
+
+dword Program::GetInstructionPointer()
+{
+	return this->m_InstructionPointer;
+}
+
+dword Program::GetLastInstructionPointer()
+{
+	return this->m_LastInstructionPointer;
+}
+
+Instruction * Program::GetCurrentInstruction()
+{
+	return this->m_pCurrentInstruction;
 }
 
 //Prints the state of the program
